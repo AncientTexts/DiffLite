@@ -40,8 +40,14 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.window.showInformationMessage('Line changes updated!');
 	});
 
+	// Register an event listener to update line changes on file save
+	const saveEventListener = vscode.workspace.onDidSaveTextDocument(() => {
+		updateLineChanges();
+	});
+
 	context.subscriptions.push(disposable);
 	context.subscriptions.push(statusBarItem);
+	context.subscriptions.push(saveEventListener);
 }
 
 // This method is called when your extension is deactivated
