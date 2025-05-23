@@ -1,0 +1,26 @@
+# Node.js
+node_modules/
+
+# Compiled output
+dist/
+out/
+*.js
+*.js.map
+*.d.ts
+
+# VS Code settings
+.vscode/
+
+# Extension packaging
+*.vsix
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Mac system files
+.DS_Store
+
+# Optional: esbuild cache
+.esbuild/
