@@ -10,44 +10,43 @@ export function activate(context: vscode.ExtensionContext) {
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activated
 	console.log('Congratulations, your extension "difflite" is now active!');
-    const git = simpleGit(vscode.workspace.workspaceFolders?.[0]?.uri.fsPath || '');
 
 	// Create a status bar item
 	const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
-	statusBarItem.text = 'Loading changes...';
-	statusBarItem.show();
+    context.subscriptions.push(statusBarItem);
+
+    const git = simpleGit(vscode.workspace.workspaceFolders?.[0]?.uri.fsPath || '');
 
 	// Function to update the status bar with line changes
 	async function updateLineChanges() {
 		try {
-			const diffSummary = await git.diffSummary();
-			const added = diffSummary.insertions;
-			const deleted = diffSummary.deletions;
+			const unstaged = await git.diffSummary();
+			const staged = await git.diffSummary(['--cached']);
+
+			const added = unstaged.insertions + staged.insertions;
+			const deleted = unstaged.deletions + staged.deletions;
 
             statusBarItem.text = `$(diff-added) +${added} $(diff-removed) -${deleted}`;
+            statusBarItem.tooltip = 'Git Changes';
+            statusBarItem.show();
+
 		} catch (error) {
 			console.error('Error fetching git diff:', error);
 			statusBarItem.text = 'Error fetching changes';
+            statusBarItem.hide();
 		}
 	}
-
 	// Update line changes on activation
 	updateLineChanges();
 
-	// Register the command to manually refresh line changes
-	const disposable = vscode.commands.registerCommand('difflite.showLineChanges', () => {
-		updateLineChanges();
-		vscode.window.showInformationMessage('Line changes updated!');
-	});
-
 	// Register an event listener to update line changes on file save
-	const saveEventListener = vscode.workspace.onDidSaveTextDocument(() => {
-		updateLineChanges();
-	});
-
-	context.subscriptions.push(disposable);
-	context.subscriptions.push(statusBarItem);
-	context.subscriptions.push(saveEventListener);
+	const saveEventListener = vscode.workspace.createFileSystemWatcher('**');
+    context.subscriptions.push(
+        saveEventListener.onDidCreate(updateLineChanges),
+        saveEventListener.onDidDelete(updateLineChanges),
+        vscode.workspace.onDidSaveTextDocument(updateLineChanges),
+        vscode.workspace.onDidChangeWorkspaceFolders(updateLineChanges)
+    );
 }
 
 // This method is called when your extension is deactivated
