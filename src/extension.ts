@@ -33,9 +33,9 @@ export function activate(context: vscode.ExtensionContext) {
             const totalChanges = added + deleted;
 
             if (totalChanges > 100 && totalChanges <= 150) {
-                vscode.window.showWarningMessage('Your commit is getting large. Consider tying off the task and opening a PR.');
+                vscode.window.showWarningMessage('Commit is large; consider opening a PR.');
             } else if (totalChanges > 150) {
-                vscode.window.showWarningMessage('Your commit has exceeded 150 lines of changes. This may be difficult to review.');
+                vscode.window.showWarningMessage('Commit exceeds 150 lines; may be hard to review.');
             }
 
 		} catch (error) {
