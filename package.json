@@ -27,12 +27,12 @@
         "difflite.gitWarningThresholds.warning": {
           "type": "number",
           "default": 100,
-          "description": "The threshold for warning-level line changes."
+          "description": "The threshold to warn the user to start thinking about opening a PR."
         },
         "difflite.gitWarningThresholds.critical": {
           "type": "number",
           "default": 150,
-          "description": "The threshold for critical-level line changes."
+          "description": "The threshold to insist the user opens a PR."
         }
       }
     }
