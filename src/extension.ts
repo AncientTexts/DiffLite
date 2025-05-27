@@ -37,13 +37,13 @@ export function activate(context: vscode.ExtensionContext) {
 
             // Fetch warning thresholds from settings
             const config = vscode.workspace.getConfiguration('difflite');
-            const smallThreshold = config.get<number>('gitWarningThresholds.small', 100);
-            const largeThreshold = config.get<number>('gitWarningThresholds.large', 150);
+            const warningThreshold = config.get<number>('gitWarningThresholds.warning', 100);
+            const criticalThreshold = config.get<number>('gitWarningThresholds.critical', 150);
 
             // Check for range transitions and show warnings accordingly
-            if (previousTotalChanges <= smallThreshold && totalChanges > smallThreshold && totalChanges <= largeThreshold) {
+            if (previousTotalChanges <= warningThreshold && totalChanges > warningThreshold && totalChanges <= criticalThreshold) {
                 vscode.window.showWarningMessage('Commit is large; consider opening a PR.');
-            } else if (previousTotalChanges <= largeThreshold && totalChanges > largeThreshold) {
+            } else if (previousTotalChanges <= criticalThreshold && totalChanges > criticalThreshold) {
                 vscode.window.showWarningMessage('Commit exceeds 150 lines; may be hard to review.');
             }
 

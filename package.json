@@ -24,15 +24,15 @@
       "type": "object",
       "title": "DiffLite Configuration",
       "properties": {
-        "difflite.gitWarningThresholds.small": {
+        "difflite.gitWarningThresholds.warning": {
           "type": "number",
           "default": 100,
-          "description": "The threshold for small warnings about line changes."
+          "description": "The threshold for warning-level line changes."
         },
-        "difflite.gitWarningThresholds.large": {
+        "difflite.gitWarningThresholds.critical": {
           "type": "number",
           "default": 150,
-          "description": "The threshold for large warnings about line changes."
+          "description": "The threshold for critical-level line changes."
         }
       }
     }
