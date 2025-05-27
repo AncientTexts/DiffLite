@@ -17,6 +17,9 @@ export function activate(context: vscode.ExtensionContext) {
 
     const git = simpleGit(vscode.workspace.workspaceFolders?.[0]?.uri.fsPath || '');
 
+    // Variable to track the previous total changes
+    let previousTotalChanges = 0;
+
 	// Function to update the status bar with line changes
 	async function updateLineChanges() {
 		try {
@@ -32,11 +35,15 @@ export function activate(context: vscode.ExtensionContext) {
 
             const totalChanges = added + deleted;
 
-            if (totalChanges > 100 && totalChanges <= 150) {
+            // Check for range transitions and show warnings accordingly
+            if (previousTotalChanges <= 100 && totalChanges > 100 && totalChanges <= 150) {
                 vscode.window.showWarningMessage('Commit is large; consider opening a PR.');
-            } else if (totalChanges > 150) {
+            } else if (previousTotalChanges <= 150 && totalChanges > 150) {
                 vscode.window.showWarningMessage('Commit exceeds 150 lines; may be hard to review.');
             }
+
+            // Update the previous total changes
+            previousTotalChanges = totalChanges;
 
 		} catch (error) {
 			console.error('Error fetching git diff:', error);
