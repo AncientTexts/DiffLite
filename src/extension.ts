@@ -30,6 +30,14 @@ export function activate(context: vscode.ExtensionContext) {
             statusBarItem.tooltip = 'Git Changes';
             statusBarItem.show();
 
+            const totalChanges = added + deleted;
+
+            if (totalChanges > 100 && totalChanges <= 150) {
+                vscode.window.showWarningMessage('Your commit is getting large. Consider tying off the task and opening a PR.');
+            } else if (totalChanges > 150) {
+                vscode.window.showWarningMessage('Your commit has exceeded 150 lines of changes. This may be difficult to review.');
+            }
+
 		} catch (error) {
 			console.error('Error fetching git diff:', error);
 			statusBarItem.text = 'Error fetching changes';
