@@ -19,7 +19,23 @@
         "command": "difflite.showLineChanges",
         "title": "Show Line Changes"
       }
-    ]
+    ],
+    "configuration": {
+      "type": "object",
+      "title": "DiffLite Configuration",
+      "properties": {
+        "difflite.gitWarningThresholds.warning": {
+          "type": "number",
+          "default": 100,
+          "description": "The threshold to warn the user to start thinking about opening a PR."
+        },
+        "difflite.gitWarningThresholds.critical": {
+          "type": "number",
+          "default": 150,
+          "description": "The threshold to insist the user opens a PR."
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run package",
