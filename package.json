@@ -24,15 +24,25 @@
       "type": "object",
       "title": "DiffLite Configuration",
       "properties": {
-        "difflite.gitWarningThresholds.warning": {
+        "difflite.gitWarningThresholds.additionsWarning": {
           "type": "number",
           "default": 100,
-          "description": "The threshold to warn the user to start thinking about opening a PR."
+          "description": "The threshold for added lines to warn the user to start thinking about opening a PR."
         },
-        "difflite.gitWarningThresholds.critical": {
+        "difflite.gitWarningThresholds.additionsCritical": {
           "type": "number",
           "default": 150,
-          "description": "The threshold to insist the user opens a PR."
+          "description": "The threshold for added lines to insist the user opens a PR."
+        },
+        "difflite.gitWarningThresholds.deletionsWarning": {
+          "type": "number",
+          "default": 300,
+          "description": "The threshold for deleted lines to warn the user to start thinking about opening a PR."
+        },
+        "difflite.gitWarningThresholds.deletionsCritical": {
+          "type": "number",
+          "default": 500,
+          "description": "The threshold for deleted lines to insist the user opens a PR."
         }
       }
     }
