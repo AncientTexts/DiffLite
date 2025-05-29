@@ -18,9 +18,10 @@ export function activate(context: vscode.ExtensionContext) {
     const git = simpleGit(vscode.workspace.workspaceFolders?.[0]?.uri.fsPath || '');
 
     // Variables to track the previous changes and warnings
-    let previousTotalChanges = 0;
     let additionWarningShown = false;
+    let additionCriticalShown = false;
     let deletionWarningShown = false;
+    let deletionCriticalShown = false;
 
 	// Function to update the status bar with line changes
 	async function updateLineChanges() {
@@ -35,31 +36,46 @@ export function activate(context: vscode.ExtensionContext) {
             statusBarItem.tooltip = 'Git Changes';
             statusBarItem.show();
 
-            const totalChanges = added + deleted;
-
             // Fetch warning thresholds from settings
             const config = vscode.workspace.getConfiguration('difflite');
-            const additionWarningThreshold = config.get<number>('gitWarningThresholds.addition', 100);
-            const deletionWarningThreshold = config.get<number>('gitWarningThresholds.deletion', 300);
+            const additionsWarningThreshold = config.get<number>('gitWarningThresholds.additionsWarning', 100);
+            const additionsCriticalThreshold = config.get<number>('gitWarningThresholds.additionsCritical', 150);
+            const deletionsWarningThreshold = config.get<number>('gitWarningThresholds.deletionsWarning', 300);
+            const deletionsCriticalThreshold = config.get<number>('gitWarningThresholds.deletionsCritical', 500);
 
-            // Reset warning flags at the start of the function
-            additionWarningShown = false;
-            deletionWarningShown = false;
-
-            // Check for addition warnings
-            if (added > additionWarningThreshold && !additionWarningShown) {
-                vscode.window.showWarningMessage(`Added lines exceed ${additionWarningThreshold}; consider opening a PR.`);
+            // Check for addition warnings and criticals
+            if (added > additionsCriticalThreshold && !additionCriticalShown) {
+                vscode.window.showWarningMessage(`Added lines exceed ${additionsCriticalThreshold}; may be hard to review.`);
+                additionCriticalShown = true;
+                additionWarningShown = true; // Ensure warning is also considered shown
+            } else if (added > additionsWarningThreshold && !additionWarningShown) {
+                vscode.window.showWarningMessage(`Added lines exceed ${additionsWarningThreshold}; consider opening a PR.`);
                 additionWarningShown = true;
             }
 
-            // Check for deletion warnings
-            if (deleted > deletionWarningThreshold && !deletionWarningShown) {
-                vscode.window.showWarningMessage(`Deleted lines exceed ${deletionWarningThreshold}; may be hard to review.`);
+            // Check for deletion warnings and criticals
+            if (deleted > deletionsCriticalThreshold && !deletionCriticalShown) {
+                vscode.window.showWarningMessage(`Deleted lines exceed ${deletionsCriticalThreshold}; may be hard to review.`);
+                deletionCriticalShown = true;
+                deletionWarningShown = true; // Ensure warning is also considered shown
+            } else if (deleted > deletionsWarningThreshold && !deletionWarningShown) {
+                vscode.window.showWarningMessage(`Deleted lines exceed ${deletionsWarningThreshold}; consider opening a PR.`);
                 deletionWarningShown = true;
             }
 
-            // Update the previous total changes
-            previousTotalChanges = totalChanges;
+            // Reset warning flags if thresholds are no longer breached
+            if (added <= additionsWarningThreshold) {
+                additionWarningShown = false;
+            }
+            if (added <= additionsCriticalThreshold) {
+                additionCriticalShown = false;
+            }
+            if (deleted <= deletionsWarningThreshold) {
+                deletionWarningShown = false;
+            }
+            if (deleted <= deletionsCriticalThreshold) {
+                deletionCriticalShown = false;
+            }
 
 		} catch (error) {
 			console.error('Error fetching git diff:', error);
