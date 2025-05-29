@@ -17,8 +17,10 @@ export function activate(context: vscode.ExtensionContext) {
 
     const git = simpleGit(vscode.workspace.workspaceFolders?.[0]?.uri.fsPath || '');
 
-    // Variable to track the previous total changes
+    // Variables to track the previous changes and warnings
     let previousTotalChanges = 0;
+    let additionWarningShown = false;
+    let deletionWarningShown = false;
 
 	// Function to update the status bar with line changes
 	async function updateLineChanges() {
@@ -37,14 +39,23 @@ export function activate(context: vscode.ExtensionContext) {
 
             // Fetch warning thresholds from settings
             const config = vscode.workspace.getConfiguration('difflite');
-            const warningThreshold = config.get<number>('gitWarningThresholds.warning', 100);
-            const criticalThreshold = config.get<number>('gitWarningThresholds.critical', 150);
+            const additionWarningThreshold = config.get<number>('gitWarningThresholds.addition', 100);
+            const deletionWarningThreshold = config.get<number>('gitWarningThresholds.deletion', 300);
 
-            // Check for range transitions and show warnings accordingly
-            if (previousTotalChanges <= warningThreshold && totalChanges > warningThreshold && totalChanges <= criticalThreshold) {
-                vscode.window.showWarningMessage('Commit is large; consider opening a PR.');
-            } else if (previousTotalChanges <= criticalThreshold && totalChanges > criticalThreshold) {
-                vscode.window.showWarningMessage('Commit exceeds 150 lines; may be hard to review.');
+            // Reset warning flags at the start of the function
+            additionWarningShown = false;
+            deletionWarningShown = false;
+
+            // Check for addition warnings
+            if (added > additionWarningThreshold && !additionWarningShown) {
+                vscode.window.showWarningMessage(`Added lines exceed ${additionWarningThreshold}; consider opening a PR.`);
+                additionWarningShown = true;
+            }
+
+            // Check for deletion warnings
+            if (deleted > deletionWarningThreshold && !deletionWarningShown) {
+                vscode.window.showWarningMessage(`Deleted lines exceed ${deletionWarningThreshold}; may be hard to review.`);
+                deletionWarningShown = true;
             }
 
             // Update the previous total changes
