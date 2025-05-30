@@ -2,6 +2,8 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import simpleGit from 'simple-git';
+import * as fs from 'fs';
+import * as path from 'path';
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -31,6 +33,22 @@ export function activate(context: vscode.ExtensionContext) {
 
 			let added = unstaged.insertions + staged.insertions;
 			let deleted = unstaged.deletions + staged.deletions;
+
+            // Include untracked file additions
+            const status = await git.status();
+            const untrackedFiles = status.not_added;
+
+            const cwd = await git.revparse(['--show-toplevel']);
+            for (const file of untrackedFiles) {
+                const filePath = path.join(cwd, file);
+                try {
+                    const fileContent = fs.readFileSync(filePath, 'utf8');
+                    const lineCount = fileContent.split('\n').length;
+                    added += lineCount;
+                } catch (readError) {
+                    console.error(`Error reading untracked file ${file}:`, readError);
+                }
+            }
 
             // Fetch settings
             const config = vscode.workspace.getConfiguration('difflite');
