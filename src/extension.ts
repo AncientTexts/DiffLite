@@ -38,8 +38,9 @@ export function activate(context: vscode.ExtensionContext) {
             const status = await git.status();
             const untrackedFiles = status.not_added;
 
+            const cwd = await git.revparse(['--show-toplevel']);
             for (const file of untrackedFiles) {
-                const filePath = path.join(git.cwd(), file);
+                const filePath = path.join(cwd, file);
                 try {
                     const fileContent = fs.readFileSync(filePath, 'utf8');
                     const lineCount = fileContent.split('\n').length;
