@@ -39,7 +39,6 @@ export function activate(context: vscode.ExtensionContext) {
 
             if (compareWithBranchEnabled) {
                 try {
-                    await git.fetch('origin');
                     const branchDiff = await git.diffSummary([compareWithBranch]);
                     added += branchDiff.insertions;
                     deleted += branchDiff.deletions;
