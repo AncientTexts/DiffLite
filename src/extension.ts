@@ -29,15 +29,30 @@ export function activate(context: vscode.ExtensionContext) {
 			const unstaged = await git.diffSummary();
 			const staged = await git.diffSummary(['--cached']);
 
-			const added = unstaged.insertions + staged.insertions;
-			const deleted = unstaged.deletions + staged.deletions;
+			let added = unstaged.insertions + staged.insertions;
+			let deleted = unstaged.deletions + staged.deletions;
+
+            // Fetch settings
+            const config = vscode.workspace.getConfiguration('difflite');
+            const compareWithBranchEnabled = config.get<boolean>('compareWithBranch.enabled', false);
+            const compareWithBranch = config.get<string>('compareWithBranch.branch', 'main');
+
+            if (compareWithBranchEnabled) {
+                try {
+                    await git.fetch('origin');
+                    const branchDiff = await git.diffSummary([compareWithBranch]);
+                    added += branchDiff.insertions;
+                    deleted += branchDiff.deletions;
+                } catch (branchError) {
+                    console.error(`Error comparing with branch ${compareWithBranch}:`, branchError);
+                }
+            }
 
             statusBarItem.text = `$(diff-added) +${added} $(diff-removed) -${deleted}`;
             statusBarItem.tooltip = 'Git Changes';
             statusBarItem.show();
 
             // Fetch warning thresholds from settings
-            const config = vscode.workspace.getConfiguration('difflite');
             const additionsWarningThreshold = config.get<number>('gitWarningThresholds.additionsWarning', 100);
             const additionsCriticalThreshold = config.get<number>('gitWarningThresholds.additionsCritical', 150);
             const deletionsWarningThreshold = config.get<number>('gitWarningThresholds.deletionsWarning', 300);

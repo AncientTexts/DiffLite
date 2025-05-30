@@ -43,6 +43,16 @@
           "type": "number",
           "default": 500,
           "description": "The threshold for deleted lines to insist the user opens a PR."
+        },
+        "difflite.compareWithBranch.enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable tracking line counts against a specific branch."
+        },
+        "difflite.compareWithBranch.branch": {
+          "type": "string",
+          "default": "main",
+          "description": "The branch to compare the current branch against for line counts."
         }
       }
     }
