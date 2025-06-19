@@ -58,8 +58,9 @@ export function activate(context: vscode.ExtensionContext) {
             if (compareWithBranchEnabled) {
                 try {
                     const branchDiff = await git.diffSummary([compareWithBranch]);
-                    added += branchDiff.insertions;
-                    deleted += branchDiff.deletions;
+                    // Adjust addition and deletion counts to prevent double counting
+                    added += Math.max(0, branchDiff.insertions - staged.insertions);
+                    deleted += Math.max(0, branchDiff.deletions - staged.deletions);
                 } catch (branchError) {
                     console.error(`Error comparing with branch ${compareWithBranch}:`, branchError);
                 }
